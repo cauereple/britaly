@@ -6,17 +6,21 @@ import com.britaly.customer.adapter.in.api.request.CreateCustomerRequest;
 import com.britaly.customer.domain.Country;
 import com.britaly.customer.port.in.CustomerUC;
 import com.britaly.customer.port.out.CountryPort;
+
+import lombok.RequiredArgsConstructor;
+
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CustomerService implements CustomerUC {
 
-    private CountryPort countryPort;
+    private final CountryPort countryPort;
 
     @Override
     public ImmutablePair<Integer, String> create(CreateCustomerRequest request) {
 
-        Optional<Country> opCountry =countryPort.findCountryById(request.getNationality());
+        Optional<Country> opCountry = countryPort.findById(request.getNationality());
         
         if(opCountry.isEmpty()) {
             // Exception

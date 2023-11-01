@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
 
-// import com.britaly.customer.domain.Country;
-// import com.britaly.customer.domain.CountryEnum;
-// import com.britaly.customer.domain.CurrencyEnum;
+import com.britaly.customer.domain.Country;
+import com.britaly.customer.domain.CountryEnum;
+import com.britaly.customer.domain.CurrencyEnum;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,8 +16,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-// import lombok.EqualsAndHashCode;
-// import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,9 +24,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-// @Generated
 @Table(name = "TB_COUNTRY")
-// @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class CountryEntity implements Serializable{
     
     @Id
@@ -51,12 +47,12 @@ public class CountryEntity implements Serializable{
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
 
-    // public static Country toDomain(CountryEntity entity) {
-    //     return.Country.builder()
-    //         .id(entity.getId())
-    //         .countryName(new CountryEnum(entity.getAcronym()))
-    //         .countryName(new CountryEnum(entity.getCountry()))
-    //         .currency(new CurrencyEnum(entity.getCurrency()))
-    //     .build();
-    // }
+    public Country toDomain() {
+        return Country.builder()
+            .id(this.id)
+            .countryName(CountryEnum.valueOf(this.acronym))
+            .countryName(CountryEnum.valueOf(this.country))
+            .currency(CurrencyEnum.valueOf(this.currency))
+        .build();
+    }
 }
