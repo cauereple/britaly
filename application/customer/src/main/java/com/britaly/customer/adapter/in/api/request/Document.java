@@ -1,10 +1,15 @@
 package com.britaly.customer.adapter.in.api.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
 public class Document {
     
-    private String type;
-    private Country country;
+    @NotNull
+    private Integer type;
+
+    @NotBlank
+    private String number;
 }
