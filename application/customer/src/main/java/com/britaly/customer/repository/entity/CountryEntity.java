@@ -3,12 +3,11 @@ package com.britaly.customer.repository.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import org.springframework.data.annotation.Id;
-
 import com.britaly.customer.domain.Country;
 import com.britaly.customer.domain.CountryEnum;
 import com.britaly.customer.domain.CurrencyEnum;
 
+import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -51,7 +50,6 @@ public class CountryEntity implements Serializable{
         return Country.builder()
             .id(this.id)
             .countryName(CountryEnum.valueOf(this.acronym))
-            .countryName(CountryEnum.valueOf(this.country))
             .currency(CurrencyEnum.valueOf(this.currency))
         .build();
     }

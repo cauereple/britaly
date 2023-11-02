@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.britaly.customer.repository.entity.CountryEntity;
 
-public interface CountryRepository extends JpaRepository<CountryEntity, Integer>{
+public interface CountryRepository extends JpaRepository<CountryEntity, Integer> {
 
     Optional<CountryEntity> findById(Integer id);
 }

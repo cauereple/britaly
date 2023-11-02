@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class CountryAdapter implements CountryPort{
+public class CountryAdapter implements CountryPort {
 
     private final CountryRepository repository;
 
