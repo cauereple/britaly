@@ -1,5 +1,7 @@
 package com.britaly.customer.adapter.in.api.request;
 
+import com.britaly.customer.domain.GenderEnum;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -14,5 +16,5 @@ public class Person {
     private String lastName;
 
     @NotNull
-    private Gender gender;
+    private GenderEnum gender;
 }
