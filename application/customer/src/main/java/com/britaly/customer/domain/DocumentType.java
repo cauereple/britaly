@@ -10,8 +10,8 @@ import lombok.Getter;
 @Builder
 @Getter
 @Generated
-public class Document {
+public class DocumentType {
     
     private Integer id;
-    private String documentName;
+    private DocumentEnum documentName;
 }

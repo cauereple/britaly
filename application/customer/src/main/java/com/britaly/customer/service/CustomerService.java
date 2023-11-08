@@ -8,7 +8,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
 
 import com.britaly.customer.adapter.in.api.request.CreateCustomerRequest;
-import com.britaly.customer.domain.Document;
+import com.britaly.customer.adapter.in.api.request.Document;
+import com.britaly.customer.domain.DocumentType;
 import com.britaly.customer.domain.Country;
 import com.britaly.customer.port.in.CustomerUC;
 import com.britaly.customer.port.out.CountryPort;
@@ -52,12 +53,12 @@ public class CustomerService implements CustomerUC {
 
         ArrayList<Integer> documentsID = new ArrayList<>();
 
-        for(com.britaly.customer.adapter.in.api.request.Document document : request.getCustomerDocuments()) {
+        for(Document document : request.getCustomerDocuments()) {
             
             documentsID.add(document.getType());
         }
 
-        List<Document> documents = documentPort.findByIds(documentsID);
+        List<DocumentType> documents = documentPort.findByIds(documentsID);
 
         return ImmutablePair.of(1, "123456789");
     }

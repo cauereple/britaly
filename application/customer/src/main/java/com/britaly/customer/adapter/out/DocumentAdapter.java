@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.britaly.customer.domain.Document;
+import com.britaly.customer.domain.DocumentType;
 import com.britaly.customer.port.out.DocumentPort;
 import com.britaly.customer.repository.DocumentRepository;
 import com.britaly.customer.repository.entity.DocumentEntity;
@@ -20,7 +20,7 @@ public class DocumentAdapter implements DocumentPort {
     private final DocumentRepository repository;
 
     @Override
-    public List<Document> findByIds(List<Integer> ids) {
+    public List<DocumentType> findByIds(List<Integer> ids) {
 
         List<DocumentEntity> listDocumentsEntity = repository.findByIds(ids);
 
@@ -28,7 +28,7 @@ public class DocumentAdapter implements DocumentPort {
             return Collections.emptyList();
         }
 
-        List<Document> list = new ArrayList<>();
+        List<DocumentType> list = new ArrayList<>();
 
         for(DocumentEntity entity : listDocumentsEntity) {
             list.add(entity.toDomain());

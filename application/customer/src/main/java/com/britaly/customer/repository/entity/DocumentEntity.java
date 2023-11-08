@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import com.britaly.customer.domain.Country;
 import com.britaly.customer.domain.CountryEnum;
 import com.britaly.customer.domain.CurrencyEnum;
-import com.britaly.customer.domain.Document;
+import com.britaly.customer.domain.DocumentType;
 import com.britaly.customer.domain.DocumentEnum;
 
 import jakarta.persistence.Column;
@@ -44,10 +44,10 @@ public class DocumentEntity {
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
 
-    public Document toDomain() {
-        return Document.builder()
+    public DocumentType toDomain() {
+        return DocumentType.builder()
             .id(this.id)
-            .documentName(this.type)
+            .documentName(DocumentEnum.valueOf(this.type))
         .build();
     }
 }
