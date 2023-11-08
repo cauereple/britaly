@@ -8,7 +8,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
 
 import com.britaly.customer.adapter.in.api.request.CreateCustomerRequest;
-import com.britaly.customer.adapter.in.api.request.Document;
+import com.britaly.customer.domain.Document;
 import com.britaly.customer.domain.Country;
 import com.britaly.customer.port.in.CustomerUC;
 import com.britaly.customer.port.out.CountryPort;
@@ -52,54 +52,9 @@ public class CustomerService implements CustomerUC {
 
         ArrayList<Integer> documentsID = new ArrayList<>();
 
-        for(Document document : request.getCustomerDocuments()) {
+        for(com.britaly.customer.adapter.in.api.request.Document document : request.getCustomerDocuments()) {
             
             documentsID.add(document.getType());
-
-            // switch (document.getType()) {
-
-            //     case 1 -> {
-            //         String cpf = Formatter.onlyNumbers(document.getNumber());
-
-            //         if(!Validator.isCPFValid(cpf)) {
-            //             // Exception
-            //         }
-
-            //         documentsID.add(document.getType());
-            //     }
-
-            //     case 2 -> {
-            //         String rg = Formatter.onlyNumbersWithX(document.getNumber());
-
-            //         if(!Validator.isRGValid(rg)) {
-            //             // Exception
-            //         }
-
-            //         documentsID.add(document.getType());
-            //     }
-
-            //     case 3 -> {
-            //         DocumentEnum codiceFiscaleEnum = DocumentEnum.CODICE_FISCALE;
-
-            //         if(!Validator.isValidCodiceFiscale(document.getNumber())) {
-            //             // Exception
-            //         }
-
-            //         documentsID.add(document.getType());
-            //     }
-
-            //     case 4 -> {
-            //         DocumentEnum cartaIdentitaEnum = DocumentEnum.CARTA_DI_IDENTITA;
-
-            //         if(!Validator.isValidCartaIdentita(document.getNumber())) {
-            //             // Exception
-            //         }
-
-            //         documentsID.add(document.getType());
-            //     }
-
-            //     default -> System.out.println("Document Invalid");
-            // }
         }
 
         List<Document> documents = documentPort.findByIds(documentsID);

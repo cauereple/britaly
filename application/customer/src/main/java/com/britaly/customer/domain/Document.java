@@ -13,5 +13,5 @@ import lombok.Getter;
 public class Document {
     
     private Integer id;
-    DocumentEnum documentName;
+    private String documentName;
 }

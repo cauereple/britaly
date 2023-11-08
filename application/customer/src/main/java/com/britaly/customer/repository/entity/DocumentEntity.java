@@ -47,7 +47,7 @@ public class DocumentEntity {
     public Document toDomain() {
         return Document.builder()
             .id(this.id)
-            .documentName(DocumentEnum.valueOf(this.type))
+            .documentName(this.type)
         .build();
     }
 }
