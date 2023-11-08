@@ -12,6 +12,7 @@ import com.britaly.customer.adapter.in.api.request.CreateCustomerRequest;
 import com.britaly.customer.adapter.in.api.response.CreateCustomerResponse;
 import com.britaly.customer.port.in.CustomerUC;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/customer")
@@ -22,7 +23,7 @@ public class CustomerController {
     private final CustomerUC customerUC;
     
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CreateCustomerResponse> createCustomer(@RequestBody final CreateCustomerRequest request) {
+    public ResponseEntity<CreateCustomerResponse> createCustomer(@RequestBody @Valid final CreateCustomerRequest request) {
 
         ImmutablePair<Integer, String> response = customerUC.create(request);
 

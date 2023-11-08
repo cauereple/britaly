@@ -9,7 +9,6 @@ import com.britaly.customer.port.out.CountryPort;
 import com.britaly.customer.utils.Formatter;
 import com.britaly.customer.utils.Validator;
 
-import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -43,11 +42,9 @@ public class CustomerService implements CustomerUC {
         
         if(opAddressCountry.isEmpty()) {
             // Exception
-        }        
+        }
 
         return ImmutablePair.of(1, "123456789");
     }
 
-    
-    
 }
