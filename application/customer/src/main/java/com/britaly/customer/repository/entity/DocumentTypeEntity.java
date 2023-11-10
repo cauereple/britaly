@@ -2,9 +2,6 @@ package com.britaly.customer.repository.entity;
 
 import java.time.LocalDateTime;
 
-import com.britaly.customer.domain.Country;
-import com.britaly.customer.domain.CountryEnum;
-import com.britaly.customer.domain.CurrencyEnum;
 import com.britaly.customer.domain.DocumentType;
 import com.britaly.customer.domain.DocumentEnum;
 
@@ -24,8 +21,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "TB_COUNTRY")
-public class DocumentEntity {
+@Table(name = "TB_DOCUMENT_TYPE")
+public class DocumentTypeEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +44,7 @@ public class DocumentEntity {
     public DocumentType toDomain() {
         return DocumentType.builder()
             .id(this.id)
-            .documentName(DocumentEnum.valueOf(this.type))
+            .documentName(DocumentEnum.fromDescription(this.type))
         .build();
     }
 }
