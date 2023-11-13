@@ -11,9 +11,11 @@ import com.britaly.customer.adapter.in.api.request.CreateCustomerRequest;
 import com.britaly.customer.adapter.in.api.request.Document;
 import com.britaly.customer.domain.DocumentType;
 import com.britaly.customer.domain.Country;
+import com.britaly.customer.domain.DocumentCustomer;
 import com.britaly.customer.domain.DocumentEnum;
 import com.britaly.customer.port.in.CustomerUC;
 import com.britaly.customer.port.out.CountryPort;
+import com.britaly.customer.port.out.DocumentCustomerPort;
 import com.britaly.customer.port.out.DocumentTypePort;
 import com.britaly.customer.utils.Formatter;
 import com.britaly.customer.utils.Validator;
@@ -26,6 +28,7 @@ public class CustomerService implements CustomerUC {
 
     private final CountryPort countryPort;
     private final DocumentTypePort documentTypePort;
+    private final DocumentCustomerPort documentCustomerPort;
 
     @Override
     public ImmutablePair<Integer, String> create(CreateCustomerRequest request) {
@@ -37,7 +40,7 @@ public class CustomerService implements CustomerUC {
         }
 
         if(!Validator.isValidEmail(request.getEmail())) {
-            // Exception
+            return ImmutablePair.of(2, "ERRO EMAIL");
         }
 
         String phoneNumber = Formatter.onlyNumbers(request.getPhone());
@@ -61,6 +64,10 @@ public class CustomerService implements CustomerUC {
 
         List<DocumentType> documents = documentTypePort.findByIds(documentsID);
 
+        List<String> documentsFormatted = new ArrayList<String>() {
+            
+        };
+
         for(Document document : request.getCustomerDocuments()) {
             
             DocumentEnum documentEnum = null;
@@ -71,28 +78,40 @@ public class CustomerService implements CustomerUC {
 
                     switch(documentEnum) {
                         case RG -> {
+
                             String numberFormatted = Formatter.onlyNumbersWithX(document.getNumber());
+                            documentsFormatted.add(numberFormatted);
+
                             if(!Validator.isRGValid(numberFormatted)) {
                                 return ImmutablePair.of(2, "ERRO RG");
                             }
                         }
 
                         case CPF -> {
+
                             String numberFormatted = Formatter.onlyNumbers(document.getNumber());
+                            documentsFormatted.add(numberFormatted);
+
                             if(!Validator.isCPFValid(numberFormatted)) {
                                 return ImmutablePair.of(2, "ERRO CPF");
                             }
                         }
 
                         case CODICE_FISCALE -> {
+
                             String numberFormatted = Formatter.onlyNumbersAndLetters(document.getNumber());
+                            documentsFormatted.add(numberFormatted);
+
                             if(!Validator.isValidCodiceFiscale(numberFormatted)) {
                                 return ImmutablePair.of(2, "ERRO CODICE FISCALE");
                             }
                         }
 
                         case CARTA_DI_IDENTITA -> {
+
                             String numberFormatted = Formatter.onlyNumbersAndLetters(document.getNumber());
+                            documentsFormatted.add(numberFormatted);
+
                             if(!Validator.isValidCartaIdentita(numberFormatted)) {
                                 return ImmutablePair.of(2, "ERRO CARTA DI IDENTITA");
                             }
@@ -104,6 +123,12 @@ public class CustomerService implements CustomerUC {
             if(documentEnum == null) {
                 // Exception
             }
+        }
+
+        List<DocumentCustomer> customerDocuments = documentCustomerPort.findByNumbers(documentsFormatted);
+
+        if(!customerDocuments.isEmpty()) {
+            return ImmutablePair.of(2, "Customer Documents");
         }
 
         return ImmutablePair.of(1, "123456789");

@@ -35,7 +35,6 @@ public class DocumentTypeAdapter implements DocumentTypePort {
         }
 
         return list;
-
     }
     
 }

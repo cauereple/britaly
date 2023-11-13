@@ -6,8 +6,6 @@ import io.micrometer.common.util.StringUtils;
 
 public class Validator {
 
-    // private static final String REGEX_EMAIL2 = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
-
     private static final String REGEX_EMAIL = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9]*[a-z0-9](?:[a-z0-9])?";
 
     private static final String REGEX_CPF = "\\d{11}";
