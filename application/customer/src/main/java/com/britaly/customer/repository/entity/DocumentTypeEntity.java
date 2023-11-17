@@ -2,9 +2,10 @@ package com.britaly.customer.repository.entity;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import com.britaly.customer.domain.DocumentType;
 import com.britaly.customer.domain.DocumentEnum;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,7 +36,8 @@ public class DocumentTypeEntity {
     @Column(name = "id_country")
     private Integer idCountry;
 
-    @Column(name = "created_date")
+    @CreationTimestamp
+    @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate;
 
     @Column(name = "updated_date")

@@ -23,23 +23,22 @@ public class DocumentCustomerAdapter implements DocumentCustomerPort {
     @Override
     public List<DocumentCustomer> findByNumbers(List<String> numbers) {
 
-        // List<DocumentCustomerEntity> listDocumentsCustomerEntity = repository.findByNumbers(numbers);
+        List<DocumentCustomerEntity> listDocumentsCustomerEntity = repository.findByNumbers(numbers);
 
-        List<DocumentCustomerEntity> listDocumentsCustomerEntity = new ArrayList<>();
+        // List<DocumentCustomerEntity> listDocumentsCustomerEntity = new ArrayList<>();
 
-        DocumentCustomerEntity documentCustomerList = new DocumentCustomerEntity();
-        documentCustomerList.setId(1);
-        documentCustomerList.setIdCustomer(1);
-        documentCustomerList.setIdDocument(1);
-        documentCustomerList.setNumber("50628939X");
-        documentCustomerList.setCreatedDate(LocalDateTime.now());
+        // DocumentCustomerEntity documentCustomerList = new DocumentCustomerEntity();
+        // documentCustomerList.setId(1);
+        // documentCustomerList.setIdCustomer(1);
+        // documentCustomerList.setIdDocument(1);
+        // documentCustomerList.setNumber("50628939X");
+        // documentCustomerList.setCreatedDate(LocalDateTime.now());
 
-        listDocumentsCustomerEntity.add(documentCustomerList);
+        // listDocumentsCustomerEntity.add(documentCustomerList);
 
-
-        // if(listDocumentsCustomerEntity.isEmpty()) {
-        //     return Collections.emptyList();
-        // }
+        if(listDocumentsCustomerEntity.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         List<DocumentCustomer> list = new ArrayList<>();
 

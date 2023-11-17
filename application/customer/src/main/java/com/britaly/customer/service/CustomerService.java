@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.britaly.customer.adapter.in.api.request.CreateCustomerRequest;
 import com.britaly.customer.adapter.in.api.request.Document;
 import com.britaly.customer.domain.DocumentType;
+import com.britaly.customer.domain.Person;
 import com.britaly.customer.domain.Country;
 import com.britaly.customer.domain.DocumentCustomer;
 import com.britaly.customer.domain.DocumentEnum;
@@ -17,6 +18,7 @@ import com.britaly.customer.port.in.CustomerUC;
 import com.britaly.customer.port.out.CountryPort;
 import com.britaly.customer.port.out.DocumentCustomerPort;
 import com.britaly.customer.port.out.DocumentTypePort;
+import com.britaly.customer.port.out.PersonPort;
 import com.britaly.customer.utils.Formatter;
 import com.britaly.customer.utils.Validator;
 
@@ -29,6 +31,7 @@ public class CustomerService implements CustomerUC {
     private final CountryPort countryPort;
     private final DocumentTypePort documentTypePort;
     private final DocumentCustomerPort documentCustomerPort;
+    private final PersonPort personPort;
 
     @Override
     public ImmutablePair<Integer, String> create(CreateCustomerRequest request) {
@@ -130,6 +133,12 @@ public class CustomerService implements CustomerUC {
         if(!customerDocuments.isEmpty()) {
             return ImmutablePair.of(2, "Customer Documents");
         }
+
+        personPort.save(Person.builder()
+                            .firstName(request.getPersonCustomer().getFirstName())
+                            .lastName(request.getPersonCustomer().getLastName())
+                            .gender(request.getPersonCustomer().getGender())
+                        .build());
 
         return ImmutablePair.of(1, "123456789");
     }

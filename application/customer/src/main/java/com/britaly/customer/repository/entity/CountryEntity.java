@@ -3,6 +3,8 @@ package com.britaly.customer.repository.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import com.britaly.customer.domain.Country;
 import com.britaly.customer.domain.CountryEnum;
 import com.britaly.customer.domain.CurrencyEnum;
@@ -40,7 +42,8 @@ public class CountryEntity implements Serializable{
     @Column(name = "currency")
     private String currency;
 
-    @Column(name = "created_date")
+    @CreationTimestamp
+    @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate;
 
     @Column(name = "updated_date")

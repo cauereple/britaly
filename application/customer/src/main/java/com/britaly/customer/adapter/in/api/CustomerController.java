@@ -30,6 +30,6 @@ public class CustomerController {
         return ResponseEntity.ok(CreateCustomerResponse.builder()
             .id(response.getLeft())
             .uuid(response.getRight())
-            .build());
+        .build());
     }
 }
