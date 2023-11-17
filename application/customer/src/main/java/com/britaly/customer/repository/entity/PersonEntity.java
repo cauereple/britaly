@@ -3,11 +3,8 @@ package com.britaly.customer.repository.entity;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Type;
-
 import com.britaly.customer.domain.GenderEnum;
 import com.britaly.customer.domain.Person;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
