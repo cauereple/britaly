@@ -10,7 +10,6 @@ import com.britaly.customer.repository.DocumentCustomerRepository;
 import com.britaly.customer.repository.entity.DocumentCustomerEntity;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 

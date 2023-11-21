@@ -5,9 +5,7 @@ import org.springframework.stereotype.Component;
 import com.britaly.customer.domain.Person;
 import com.britaly.customer.port.out.PersonPort;
 import com.britaly.customer.repository.PersonRepository;
-import com.britaly.customer.repository.entity.GenderTypeEnum;
 import com.britaly.customer.repository.entity.PersonEntity;
-
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -18,12 +16,6 @@ public class PersonAdapter implements PersonPort{
 
     @Override
     public Person save(Person person) {
-
-        // PersonEntity personEntity = PersonEntity.fromDomain(person);
-
-        // repository.save(personEntity);
-
-        return repository.save((PersonEntity.fromDomain(person))).toDomain();
+        return repository.save(PersonEntity.fromDomain(person)).toDomain();
     }
-    
 }

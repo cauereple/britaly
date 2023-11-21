@@ -12,15 +12,18 @@ import com.britaly.customer.adapter.in.api.request.Document;
 import com.britaly.customer.domain.DocumentType;
 import com.britaly.customer.domain.Person;
 import com.britaly.customer.domain.Country;
+import com.britaly.customer.domain.Customer;
 import com.britaly.customer.domain.DocumentCustomer;
 import com.britaly.customer.domain.DocumentEnum;
 import com.britaly.customer.port.in.CustomerUC;
 import com.britaly.customer.port.out.CountryPort;
+import com.britaly.customer.port.out.CustomerPort;
 import com.britaly.customer.port.out.DocumentCustomerPort;
 import com.britaly.customer.port.out.DocumentTypePort;
 import com.britaly.customer.port.out.PersonPort;
 import com.britaly.customer.utils.Formatter;
 import com.britaly.customer.utils.Validator;
+import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +35,7 @@ public class CustomerService implements CustomerUC {
     private final DocumentTypePort documentTypePort;
     private final DocumentCustomerPort documentCustomerPort;
     private final PersonPort personPort;
+    private final CustomerPort customerPort;
 
     @Override
     public ImmutablePair<Integer, String> create(CreateCustomerRequest request) {
@@ -43,6 +47,7 @@ public class CustomerService implements CustomerUC {
         }
 
         if(!Validator.isValidEmail(request.getEmail())) {
+            //Exception
             return ImmutablePair.of(2, "ERRO EMAIL");
         }
 
@@ -86,6 +91,7 @@ public class CustomerService implements CustomerUC {
                             documentsFormatted.add(numberFormatted);
 
                             if(!Validator.isRGValid(numberFormatted)) {
+                                //Exception
                                 return ImmutablePair.of(2, "ERRO RG");
                             }
                         }
@@ -96,6 +102,7 @@ public class CustomerService implements CustomerUC {
                             documentsFormatted.add(numberFormatted);
 
                             if(!Validator.isCPFValid(numberFormatted)) {
+                                //Exception
                                 return ImmutablePair.of(2, "ERRO CPF");
                             }
                         }
@@ -106,6 +113,7 @@ public class CustomerService implements CustomerUC {
                             documentsFormatted.add(numberFormatted);
 
                             if(!Validator.isValidCodiceFiscale(numberFormatted)) {
+                                //Exception
                                 return ImmutablePair.of(2, "ERRO CODICE FISCALE");
                             }
                         }
@@ -116,6 +124,7 @@ public class CustomerService implements CustomerUC {
                             documentsFormatted.add(numberFormatted);
 
                             if(!Validator.isValidCartaIdentita(numberFormatted)) {
+                                //Exception
                                 return ImmutablePair.of(2, "ERRO CARTA DI IDENTITA");
                             }
                         }
@@ -131,14 +140,52 @@ public class CustomerService implements CustomerUC {
         List<DocumentCustomer> customerDocuments = documentCustomerPort.findByNumbers(documentsFormatted);
 
         if(!customerDocuments.isEmpty()) {
-            return ImmutablePair.of(2, "Customer Documents");
+            //Exception
+            return ImmutablePair.of(2, "ERRO Customer Documents");
         }
 
-        personPort.save(Person.builder()
+        Person personCustomer = personPort.save(Person.builder()
                             .firstName(request.getPersonCustomer().getFirstName())
                             .lastName(request.getPersonCustomer().getLastName())
                             .gender(request.getPersonCustomer().getGender())
                         .build());
+                    
+        Integer personFatherId = null;
+        Integer personMotherId = null;
+                        
+        if(Objects.nonNull(request.getAffiliationFather())) {
+            Person personFather = personPort.save(Person.builder()
+                            .firstName(request.getAffiliationFather().getFirstName())
+                            .lastName(request.getAffiliationFather().getLastName())
+                            .gender(request.getAffiliationFather().getGender())
+                            .build());
+            
+            personFatherId = personFather.getId();
+        }
+        
+        if(Objects.nonNull(request.getAffiliationMother())) {
+            Person personMother = personPort.save(Person.builder()
+                            .firstName(request.getAffiliationMother().getFirstName())
+                            .lastName(request.getAffiliationMother().getLastName())
+                            .gender(request.getAffiliationMother().getGender())
+                            .build());
+
+            personMotherId = personMother.getId();
+        }
+
+        Customer customer = customerPort.save(Customer.builder()
+                            .idPerson(personCustomer.getId())
+                            .email(request.getEmail())
+                            .phone(phoneNumber)
+                            .dateBirth(request.getDateBirth())
+                            .idAffiliationFather(personFatherId)
+                            .idAffiliationMother(personMotherId)
+                            .maritalStatus(request.getMaritalStatus())
+                            .nationality(opCountry.get().getId())
+                            .profession(request.getProfession())
+                            .build());
+
+
 
         return ImmutablePair.of(1, "123456789");
     }
