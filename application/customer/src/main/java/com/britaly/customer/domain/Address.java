@@ -8,10 +8,13 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
-public class DocumentCustomer {
+public class Address {
     
     private Integer id;
-    private Integer idCustomer;
-    private Integer idDocument;
-    private String number;
+    private String addressName;
+    private Integer number;
+    private String complement;
+    private String city;
+    private String state;
+    private Integer idCountry;
 }

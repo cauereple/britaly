@@ -33,7 +33,7 @@ public class DocumentCustomerEntity {
     @Column(name = "id_customer")
     private Integer idCustomer;
 
-    @Column(name = "id_document")
+    @Column(name = "id_document_type")
     private Integer idDocument;
 
     @Column(name = "number")
@@ -46,9 +46,19 @@ public class DocumentCustomerEntity {
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
 
+    public static DocumentCustomerEntity fromDomain(DocumentCustomer domain) {
+        return DocumentCustomerEntity.builder()
+            .idCustomer(domain.getIdCustomer())
+            .idDocument(domain.getIdDocument())
+            .number(domain.getNumber())
+            .build();
+    }
+
     public DocumentCustomer toDomain() {
         return DocumentCustomer.builder()
             .id(this.id)
+            .idCustomer(this.idCustomer)
+            .idDocument(this.idDocument)
             .number(this.number)
         .build();
     }

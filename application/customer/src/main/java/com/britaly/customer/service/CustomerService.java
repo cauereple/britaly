@@ -11,11 +11,13 @@ import com.britaly.customer.adapter.in.api.request.CreateCustomerRequest;
 import com.britaly.customer.adapter.in.api.request.Document;
 import com.britaly.customer.domain.DocumentType;
 import com.britaly.customer.domain.Person;
+import com.britaly.customer.domain.Address;
 import com.britaly.customer.domain.Country;
 import com.britaly.customer.domain.Customer;
 import com.britaly.customer.domain.DocumentCustomer;
 import com.britaly.customer.domain.DocumentEnum;
 import com.britaly.customer.port.in.CustomerUC;
+import com.britaly.customer.port.out.AddressPort;
 import com.britaly.customer.port.out.CountryPort;
 import com.britaly.customer.port.out.CustomerPort;
 import com.britaly.customer.port.out.DocumentCustomerPort;
@@ -36,6 +38,7 @@ public class CustomerService implements CustomerUC {
     private final DocumentCustomerPort documentCustomerPort;
     private final PersonPort personPort;
     private final CustomerPort customerPort;
+    private final AddressPort addressPort;
 
     @Override
     public ImmutablePair<Integer, String> create(CreateCustomerRequest request) {
@@ -185,9 +188,48 @@ public class CustomerService implements CustomerUC {
                             .profession(request.getProfession())
                             .build());
 
+        List<DocumentCustomer> documentList = new ArrayList<>();
+        
+        // for(DocumentType document : documents) {
 
 
-        return ImmutablePair.of(1, "123456789");
+        //     for(String number : documentsFormatted) {
+
+        //         documentList.add(DocumentCustomer.builder()
+        //             .idCustomer(customer.getId())
+        //             .idDocument(document.getId())
+        //             .number(number)
+        //             .build());
+        //     }
+        // }
+
+        if (documents.size() == documentsFormatted.size()) {
+            for (var i = 0; i < documents.size(); i++) {
+
+                DocumentType document = documents.get(i);
+                String number = documentsFormatted.get(i);
+        
+                documentList.add(DocumentCustomer.builder()
+                    .idCustomer(customer.getId())
+                    .idDocument(document.getId())
+                    .number(number)
+                    .build());
+            }
+        }
+
+        List<DocumentCustomer> documentsFromEntity = documentCustomerPort.saveAll(documentList);
+
+        Address address = addressPort.save(Address.builder()
+                    .addressName(request.getCustomerAddress().getAddressDescription())
+                    .number(request.getCustomerAddress().getNumber())
+                    .complement(request.getCustomerAddress().getComplement())
+                    .city(request.getCustomerAddress().getCity())
+                    .state(request.getCustomerAddress().getState())
+                    .idCountry(opCountry.get().getId())
+                    .build());
+
+
+        return ImmutablePair.of(customer.getId(), customer.getUuid());
     }
 
 }

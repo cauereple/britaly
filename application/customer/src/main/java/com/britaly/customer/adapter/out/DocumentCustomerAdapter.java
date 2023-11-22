@@ -24,17 +24,6 @@ public class DocumentCustomerAdapter implements DocumentCustomerPort {
 
         List<DocumentCustomerEntity> listDocumentsCustomerEntity = repository.findByNumbers(numbers);
 
-        // List<DocumentCustomerEntity> listDocumentsCustomerEntity = new ArrayList<>();
-
-        // DocumentCustomerEntity documentCustomerList = new DocumentCustomerEntity();
-        // documentCustomerList.setId(1);
-        // documentCustomerList.setIdCustomer(1);
-        // documentCustomerList.setIdDocument(1);
-        // documentCustomerList.setNumber("50628939X");
-        // documentCustomerList.setCreatedDate(LocalDateTime.now());
-
-        // listDocumentsCustomerEntity.add(documentCustomerList);
-
         if(listDocumentsCustomerEntity.isEmpty()) {
             return Collections.emptyList();
         }
@@ -45,6 +34,29 @@ public class DocumentCustomerAdapter implements DocumentCustomerPort {
             list.add(entity.toDomain());
         }
 
+        return list;
+    }
+
+    @Override
+    public List<DocumentCustomer> saveAll(List<DocumentCustomer> documents) {
+    
+        List<DocumentCustomerEntity> listDocumentsEntity = new ArrayList<>();
+
+        for(DocumentCustomer document : documents) {
+            
+            DocumentCustomerEntity documentEntity = DocumentCustomerEntity.fromDomain(document);
+
+            listDocumentsEntity.add(documentEntity);
+        }
+
+        List<DocumentCustomerEntity> listDocuments = repository.saveAll(listDocumentsEntity);
+
+        List<DocumentCustomer> list = new ArrayList<>();
+
+        for(DocumentCustomerEntity entity : listDocuments) {
+            list.add(entity.toDomain());
+        }
+        
         return list;
     }
     

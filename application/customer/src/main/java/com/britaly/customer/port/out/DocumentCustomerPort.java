@@ -6,4 +6,6 @@ import com.britaly.customer.domain.DocumentCustomer;
 public interface DocumentCustomerPort {
     
     public List<DocumentCustomer> findByNumbers(List<String> numbers);
+
+    public List<DocumentCustomer> saveAll(List<DocumentCustomer> documents);
 }
