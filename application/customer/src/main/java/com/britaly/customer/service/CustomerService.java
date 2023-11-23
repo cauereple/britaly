@@ -1,7 +1,9 @@
 package com.britaly.customer.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -12,11 +14,13 @@ import com.britaly.customer.adapter.in.api.request.Document;
 import com.britaly.customer.domain.DocumentType;
 import com.britaly.customer.domain.Person;
 import com.britaly.customer.domain.Address;
+import com.britaly.customer.domain.AddressCustomer;
 import com.britaly.customer.domain.Country;
 import com.britaly.customer.domain.Customer;
 import com.britaly.customer.domain.DocumentCustomer;
 import com.britaly.customer.domain.DocumentEnum;
 import com.britaly.customer.port.in.CustomerUC;
+import com.britaly.customer.port.out.AddressCustomerPort;
 import com.britaly.customer.port.out.AddressPort;
 import com.britaly.customer.port.out.CountryPort;
 import com.britaly.customer.port.out.CustomerPort;
@@ -39,6 +43,7 @@ public class CustomerService implements CustomerUC {
     private final PersonPort personPort;
     private final CustomerPort customerPort;
     private final AddressPort addressPort;
+    private final AddressCustomerPort addressCustomerPort;
 
     @Override
     public ImmutablePair<Integer, String> create(CreateCustomerRequest request) {
@@ -75,7 +80,7 @@ public class CustomerService implements CustomerUC {
 
         List<DocumentType> documents = documentTypePort.findByIds(documentsID);
 
-        List<String> documentsFormatted = new ArrayList<String>() {
+        Map<Integer, String> documentsFormatted = new HashMap<>() {
             
         };
 
@@ -91,7 +96,7 @@ public class CustomerService implements CustomerUC {
                         case RG -> {
 
                             String numberFormatted = Formatter.onlyNumbersWithX(document.getNumber());
-                            documentsFormatted.add(numberFormatted);
+                            documentsFormatted.put(documentBanco.getId(), numberFormatted);
 
                             if(!Validator.isRGValid(numberFormatted)) {
                                 //Exception
@@ -102,7 +107,8 @@ public class CustomerService implements CustomerUC {
                         case CPF -> {
 
                             String numberFormatted = Formatter.onlyNumbers(document.getNumber());
-                            documentsFormatted.add(numberFormatted);
+                            documentsFormatted.put(documentBanco.getId(), numberFormatted);
+
 
                             if(!Validator.isCPFValid(numberFormatted)) {
                                 //Exception
@@ -113,7 +119,7 @@ public class CustomerService implements CustomerUC {
                         case CODICE_FISCALE -> {
 
                             String numberFormatted = Formatter.onlyNumbersAndLetters(document.getNumber());
-                            documentsFormatted.add(numberFormatted);
+                            documentsFormatted.put(documentBanco.getId(), numberFormatted);
 
                             if(!Validator.isValidCodiceFiscale(numberFormatted)) {
                                 //Exception
@@ -124,7 +130,7 @@ public class CustomerService implements CustomerUC {
                         case CARTA_DI_IDENTITA -> {
 
                             String numberFormatted = Formatter.onlyNumbersAndLetters(document.getNumber());
-                            documentsFormatted.add(numberFormatted);
+                            documentsFormatted.put(documentBanco.getId(), numberFormatted);
 
                             if(!Validator.isValidCartaIdentita(numberFormatted)) {
                                 //Exception
@@ -140,7 +146,9 @@ public class CustomerService implements CustomerUC {
             }
         }
 
-        List<DocumentCustomer> customerDocuments = documentCustomerPort.findByNumbers(documentsFormatted);
+        List<String> lista1 = new ArrayList<>(documentsFormatted.values());
+
+        List<DocumentCustomer> customerDocuments = documentCustomerPort.findByNumbers(new ArrayList<>(documentsFormatted.values()));
 
         if(!customerDocuments.isEmpty()) {
             //Exception
@@ -184,37 +192,18 @@ public class CustomerService implements CustomerUC {
                             .idAffiliationFather(personFatherId)
                             .idAffiliationMother(personMotherId)
                             .maritalStatus(request.getMaritalStatus())
-                            .nationality(opCountry.get().getId())
+                            .nationality(request.getNationality())
                             .profession(request.getProfession())
                             .build());
 
         List<DocumentCustomer> documentList = new ArrayList<>();
         
-        // for(DocumentType document : documents) {
-
-
-        //     for(String number : documentsFormatted) {
-
-        //         documentList.add(DocumentCustomer.builder()
-        //             .idCustomer(customer.getId())
-        //             .idDocument(document.getId())
-        //             .number(number)
-        //             .build());
-        //     }
-        // }
-
-        if (documents.size() == documentsFormatted.size()) {
-            for (var i = 0; i < documents.size(); i++) {
-
-                DocumentType document = documents.get(i);
-                String number = documentsFormatted.get(i);
-        
-                documentList.add(DocumentCustomer.builder()
-                    .idCustomer(customer.getId())
-                    .idDocument(document.getId())
-                    .number(number)
-                    .build());
-            }
+        for (Map.Entry<Integer, String> document : documentsFormatted.entrySet()) {
+            documentList.add(DocumentCustomer.builder()
+                .idCustomer(customer.getId())
+                .idDocument(document.getKey())
+                .number(document.getValue())
+                .build());
         }
 
         List<DocumentCustomer> documentsFromEntity = documentCustomerPort.saveAll(documentList);
@@ -225,9 +214,13 @@ public class CustomerService implements CustomerUC {
                     .complement(request.getCustomerAddress().getComplement())
                     .city(request.getCustomerAddress().getCity())
                     .state(request.getCustomerAddress().getState())
-                    .idCountry(opCountry.get().getId())
+                    .idCountry(request.getCustomerAddress().getIdCountry())
                     .build());
 
+        AddressCustomer addressCustomer = addressCustomerPort.save(AddressCustomer.builder()
+                    .idCustomer(customer.getId())
+                    .idAddress(address.getId())
+                    .build());
 
         return ImmutablePair.of(customer.getId(), customer.getUuid());
     }
