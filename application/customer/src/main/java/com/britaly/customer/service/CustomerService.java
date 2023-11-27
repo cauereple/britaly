@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Arrays;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import com.britaly.customer.port.out.CustomerPort;
 import com.britaly.customer.port.out.DocumentCustomerPort;
 import com.britaly.customer.port.out.DocumentTypePort;
 import com.britaly.customer.port.out.PersonPort;
+import com.britaly.customer.service.exception.ServiceValidationException;
 import com.britaly.customer.utils.Formatter;
 import com.britaly.customer.utils.Validator;
 import java.util.Objects;
@@ -46,29 +48,28 @@ public class CustomerService implements CustomerUC {
     private final AddressCustomerPort addressCustomerPort;
 
     @Override
-    public ImmutablePair<Integer, String> create(CreateCustomerRequest request) {
+    public ImmutablePair<Integer, String> create(CreateCustomerRequest request) throws ServiceValidationException {
 
         Optional<Country> opCountry = countryPort.findById(request.getNationality());
         
         if(opCountry.isEmpty()) {
-            // Exception
+            throw new ServiceValidationException(Arrays.asList("Country doesn't exist"));
         }
 
         if(!Validator.isValidEmail(request.getEmail())) {
-            //Exception
-            return ImmutablePair.of(2, "ERRO EMAIL");
+            throw new ServiceValidationException(Arrays.asList("Invalid E-mail"));
         }
 
         String phoneNumber = Formatter.onlyNumbers(request.getPhone());
 
         if(!Validator.isValidPhone(phoneNumber)) {
-            // Exception
+            throw new ServiceValidationException(Arrays.asList("Invalid Phone Number"));
         }
 
         Optional<Country> opAddressCountry = countryPort.findById(request.getCustomerAddress().getIdCountry());
         
         if(opAddressCountry.isEmpty()) {
-            // Exception
+            throw new ServiceValidationException(Arrays.asList("Country doesn't exist"));
         }
 
         ArrayList<Integer> documentsID = new ArrayList<>();
@@ -99,8 +100,7 @@ public class CustomerService implements CustomerUC {
                             documentsFormatted.put(documentBanco.getId(), numberFormatted);
 
                             if(!Validator.isRGValid(numberFormatted)) {
-                                //Exception
-                                return ImmutablePair.of(2, "ERRO RG");
+                                throw new ServiceValidationException(Arrays.asList("Invalid RG"));
                             }
                         }
 
@@ -111,8 +111,7 @@ public class CustomerService implements CustomerUC {
 
 
                             if(!Validator.isCPFValid(numberFormatted)) {
-                                //Exception
-                                return ImmutablePair.of(2, "ERRO CPF");
+                                throw new ServiceValidationException(Arrays.asList("Invalid CPF"));
                             }
                         }
 
@@ -122,8 +121,7 @@ public class CustomerService implements CustomerUC {
                             documentsFormatted.put(documentBanco.getId(), numberFormatted);
 
                             if(!Validator.isValidCodiceFiscale(numberFormatted)) {
-                                //Exception
-                                return ImmutablePair.of(2, "ERRO CODICE FISCALE");
+                                throw new ServiceValidationException(Arrays.asList("Invalid Codice Fiscale"));
                             }
                         }
 
@@ -133,8 +131,7 @@ public class CustomerService implements CustomerUC {
                             documentsFormatted.put(documentBanco.getId(), numberFormatted);
 
                             if(!Validator.isValidCartaIdentita(numberFormatted)) {
-                                //Exception
-                                return ImmutablePair.of(2, "ERRO CARTA DI IDENTITA");
+                                throw new ServiceValidationException(Arrays.asList("Invalid Carta di Identità"));
                             }
                         }
                     }
@@ -142,17 +139,15 @@ public class CustomerService implements CustomerUC {
             }
 
             if(documentEnum == null) {
-                // Exception
+                throw new ServiceValidationException(Arrays.asList("Document doesn't exists"));
             }
         }
 
-        List<String> lista1 = new ArrayList<>(documentsFormatted.values());
-
         List<DocumentCustomer> customerDocuments = documentCustomerPort.findByNumbers(new ArrayList<>(documentsFormatted.values()));
 
+        // Aqui se a lista volta preenchida, quer dizer que já existia um documento cadastrado no banco. Mas não seria interessante passarmos para o cliente qual documento da lista que ele passou já está cadastrado no banco?
         if(!customerDocuments.isEmpty()) {
-            //Exception
-            return ImmutablePair.of(2, "ERRO Customer Documents");
+            throw new ServiceValidationException(Arrays.asList("Document already registrated"));
         }
 
         Person personCustomer = personPort.save(Person.builder()
