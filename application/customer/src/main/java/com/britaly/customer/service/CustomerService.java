@@ -201,7 +201,7 @@ public class CustomerService implements CustomerUC {
                 .build());
         }
 
-        List<DocumentCustomer> documentsFromEntity = documentCustomerPort.saveAll(documentList);
+        documentCustomerPort.saveAll(documentList);
 
         Address address = addressPort.save(Address.builder()
                     .addressName(request.getCustomerAddress().getAddressDescription())
@@ -212,7 +212,7 @@ public class CustomerService implements CustomerUC {
                     .idCountry(request.getCustomerAddress().getIdCountry())
                     .build());
 
-        AddressCustomer addressCustomer = addressCustomerPort.save(AddressCustomer.builder()
+        addressCustomerPort.save(AddressCustomer.builder()
                     .idCustomer(customer.getId())
                     .idAddress(address.getId())
                     .build());
