@@ -1,3 +1,10 @@
 spring:
     profiles:
         active: dev
+
+ # flyway:
+    #     baseline-on-migrate: true
+        # enable: true
+    # jpa:
+    #     hibernate:
+    #         ddl-auto: update

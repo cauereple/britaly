@@ -8,8 +8,6 @@ import com.britaly.customer.domain.MaritalStatusEnum;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,7 +17,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.util.UUID;
-
 
 @Entity
 @Builder
@@ -55,9 +52,8 @@ public class CustomerEntity {
     @Column(name = "affiliation_mother")
     private Integer idAffiliationMother;
 
-    @Column(columnDefinition = "marital_status")
-    @Enumerated(EnumType.STRING)
-    private MaritalStatusTypeEnum maritalStatus;
+    @Column(name = "marital_status")
+    private String maritalStatus;
 
     @Column(name = "nationality")
     private Integer idCountry;
@@ -81,7 +77,7 @@ public class CustomerEntity {
             .dateBirth(domain.getDateBirth())
             .idAffiliationFather(domain.getIdAffiliationFather())
             .idAffiliationMother(domain.getIdAffiliationMother())
-            .maritalStatus(MaritalStatusTypeEnum.valueOf(domain.getMaritalStatus().toString()))
+            .maritalStatus(domain.getMaritalStatus().toString())
             .idCountry(domain.getNationality())
             .profession(domain.getProfession())
             .build();
@@ -97,7 +93,7 @@ public class CustomerEntity {
             .dateBirth(this.dateBirth)
             .idAffiliationFather(this.idAffiliationFather)
             .idAffiliationMother(this.idAffiliationMother)
-            .maritalStatus(MaritalStatusEnum.valueOf(this.maritalStatus.toString()))
+            .maritalStatus(MaritalStatusEnum.valueOf(this.maritalStatus))
             .nationality(this.idCountry)
             .profession(this.profession)
             .build();
