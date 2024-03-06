@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.util.Arrays;
+
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.http.HttpHeaders;
 
 import com.britaly.customer.adapter.in.api.response.DefaultResponse;
@@ -23,5 +27,16 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         .build();
 
         return handleExceptionInternal(ex, responseBody, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = {NullPointerException.class, InvalidDataAccessResourceUsageException.class})
+    protected ResponseEntity<Object> handleInternalServerError(RuntimeException ex, WebRequest request) {
+
+        DefaultResponse<Object> responseBody =  DefaultResponse.<Object>builder()
+            .httpStatus(500)
+            .errors(Arrays.asList(ex.getMessage()))
+        .build();
+
+        return handleExceptionInternal(ex, responseBody, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 }

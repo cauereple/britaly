@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.util.Objects;
 
 @Entity
 @Builder
@@ -49,6 +50,15 @@ public class CountryEntity implements Serializable{
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
 
+    public static CountryEntity fromDomain(Country domain) {
+        return CountryEntity.builder()
+            .id(domain.getId())
+            .acronym(Objects.nonNull(domain.getCountryName()) ? domain.getCountryName().toString() : null)
+            .country(Objects.nonNull(domain.getCountryName()) ? domain.getCountryName().getCountryName() : null)
+            .currency(Objects.nonNull(domain.getCurrency()) ? domain.getCurrency().toString() : null)
+        .build();
+    }
+    
     public Country toDomain() {
         return Country.builder()
             .id(this.id)

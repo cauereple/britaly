@@ -13,4 +13,10 @@ public class Country {
     private Integer id;
     private CountryEnum countryName;
     private CurrencyEnum currency;
+
+    public static Country onlyId(Integer id) {
+        return Country.builder()
+            .id(id)
+        .build();
+    }
 }

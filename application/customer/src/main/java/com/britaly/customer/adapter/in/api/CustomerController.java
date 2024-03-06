@@ -14,6 +14,7 @@ import com.britaly.customer.adapter.in.api.response.DefaultResponse;
 import com.britaly.customer.port.in.CustomerUC;
 import com.britaly.customer.service.exception.ServiceValidationException;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +25,7 @@ public class CustomerController {
 
     private final CustomerUC customerUC;
     
+    @Operation(summary = "Register customers")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DefaultResponse<CreateCustomerResponse>> createCustomer(@RequestBody @Valid final CreateCustomerRequest request) throws ServiceValidationException {
 
