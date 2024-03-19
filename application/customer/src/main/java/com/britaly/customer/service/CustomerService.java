@@ -31,7 +31,11 @@ import com.britaly.customer.port.out.PersonPort;
 import com.britaly.customer.service.exception.ServiceValidationException;
 import com.britaly.customer.utils.Formatter;
 import com.britaly.customer.utils.Validator;
+
+import jakarta.transaction.Transactional;
+
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
@@ -50,134 +54,131 @@ public class CustomerService implements CustomerUC {
     @Override
     public ImmutablePair<Integer, String> create(CreateCustomerRequest request) throws ServiceValidationException {
 
-        Optional<Country> opCountry = countryPort.findById(request.getNationality());
-        
-        if(opCountry.isEmpty()) {
-            throw new ServiceValidationException(Arrays.asList("Country doesn't exist"));
-        }
+        checkCountry(request.getNationality(), request.getCustomerAddress().getIdCountry());
 
         if(!Validator.isValidEmail(request.getEmail())) {
             throw new ServiceValidationException(Arrays.asList("Invalid E-mail"));
         }
 
-        String phoneNumber = Formatter.onlyNumbers(request.getPhone());
+        String phoneNumber = checkPhone(request.getPhone());
+
+        Map<Integer, String> documentsFormatted = checkAndFormatterDocuments(request.getCustomerDocuments());
+
+        checkCustomerDocuments(documentsFormatted);
+
+        return createPersistence(request, phoneNumber, documentsFormatted);        
+    }
+
+    private void checkCountry(Integer nationality, Integer idCountryFromAddress) throws ServiceValidationException {
+
+        Optional<Country> opCountry = countryPort.findById(nationality);
+
+        Optional<Country> opAddressCountry = countryPort.findById(idCountryFromAddress);
+        
+        if(opCountry.isEmpty() || opAddressCountry.isEmpty()) {
+            throw new ServiceValidationException(Arrays.asList("Country doesn't exist"));
+        }
+    }
+
+    private String checkPhone(String phone) throws ServiceValidationException {
+        
+        String phoneNumber = Formatter.onlyNumbers(phone);
 
         if(!Validator.isValidPhone(phoneNumber)) {
             throw new ServiceValidationException(Arrays.asList("Invalid Phone Number"));
         }
 
-        Optional<Country> opAddressCountry = countryPort.findById(request.getCustomerAddress().getIdCountry());
-        
-        if(opAddressCountry.isEmpty()) {
-            throw new ServiceValidationException(Arrays.asList("Country doesn't exist"));
-        }
-
-        ArrayList<Integer> documentsID = new ArrayList<>();
-
-        for(Document document : request.getCustomerDocuments()) {
-            
-            documentsID.add(document.getType());
-        }
-
+        return phoneNumber;
+    }
+    private Map<Integer, String> checkAndFormatterDocuments(List<Document> documentsFromRequest) throws ServiceValidationException {
+        List<Integer> documentsID = documentsFromRequest.stream().map(Document::getType).collect(Collectors.toList());
         List<DocumentType> documents = documentTypePort.findByIds(documentsID);
-
-        Map<Integer, String> documentsFormatted = new HashMap<>() {
-            
-        };
-
-        for(Document document : request.getCustomerDocuments()) {
-            
+        return formatDocuments(documentsFromRequest, documents);
+    }
+    
+    private Map<Integer, String> formatDocuments(List<Document> documentsFromRequest, List<DocumentType> documents) throws ServiceValidationException {
+        Map<Integer, String> documentsFormatted = new HashMap<>();
+    
+        for (Document document : documentsFromRequest) {
             DocumentEnum documentEnum = null;
-
-            for(DocumentType documentBanco : documents) {
-                if(document.getType().equals(documentBanco.getId())) {
+    
+            for (DocumentType documentBanco : documents) {
+                if (document.getType().equals(documentBanco.getId())) {
                     documentEnum = documentBanco.getDocumentName();
-
-                    switch(documentEnum) {
-                        case RG -> {
-
-                            String numberFormatted = Formatter.onlyNumbersWithX(document.getNumber());
-                            documentsFormatted.put(documentBanco.getId(), numberFormatted);
-
-                            if(!Validator.isRGValid(numberFormatted)) {
-                                throw new ServiceValidationException(Arrays.asList("Invalid RG"));
-                            }
-                        }
-
-                        case CPF -> {
-
-                            String numberFormatted = Formatter.onlyNumbers(document.getNumber());
-                            documentsFormatted.put(documentBanco.getId(), numberFormatted);
-
-
-                            if(!Validator.isCPFValid(numberFormatted)) {
-                                throw new ServiceValidationException(Arrays.asList("Invalid CPF"));
-                            }
-                        }
-
-                        case CODICE_FISCALE -> {
-
-                            String numberFormatted = Formatter.onlyNumbersAndLetters(document.getNumber());
-                            documentsFormatted.put(documentBanco.getId(), numberFormatted);
-
-                            if(!Validator.isValidCodiceFiscale(numberFormatted)) {
-                                throw new ServiceValidationException(Arrays.asList("Invalid Codice Fiscale"));
-                            }
-                        }
-
-                        case CARTA_DI_IDENTITA -> {
-
-                            String numberFormatted = Formatter.onlyNumbersAndLetters(document.getNumber());
-                            documentsFormatted.put(documentBanco.getId(), numberFormatted);
-
-                            if(!Validator.isValidCartaIdentita(numberFormatted)) {
-                                throw new ServiceValidationException(Arrays.asList("Invalid Carta di Identità"));
-                            }
-                        }
-                    }
+                    String numberFormatted = formatDocumentNumber(document.getNumber(), documentEnum);
+                    documentsFormatted.put(documentBanco.getId(), numberFormatted);
+                    break;
                 }
             }
-
-            if(documentEnum == null) {
-                throw new ServiceValidationException(Arrays.asList("Document doesn't exists"));
+    
+            if (documentEnum == null) {
+                throw new ServiceValidationException(Arrays.asList("Document doesn't exist"));
             }
         }
+    
+        return documentsFormatted;
+    }
+
+    private String formatDocumentNumber(String number, DocumentEnum documentEnum) throws ServiceValidationException {
+        switch (documentEnum) {
+            case RG:
+                String rgFormatted = Formatter.onlyNumbersWithX(number);
+                if (!Validator.isRGValid(rgFormatted)) {
+                    throw new ServiceValidationException(Arrays.asList("Invalid RG"));
+                }
+                return rgFormatted;
+    
+            case CPF:
+                String cpfFormatted = Formatter.onlyNumbers(number);
+                if (!Validator.isCPFValid(cpfFormatted)) {
+                    throw new ServiceValidationException(Arrays.asList("Invalid CPF"));
+                }
+                return cpfFormatted;
+    
+            case CODICE_FISCALE:
+                String codiceFiscaleFormatted = Formatter.onlyNumbersAndLetters(number);
+                if(!Validator.isValidCodiceFiscale(codiceFiscaleFormatted)) {
+                    throw new ServiceValidationException(Arrays.asList("Invalid Codice Fiscale"));
+                }
+                return codiceFiscaleFormatted;
+
+            case CARTA_DI_IDENTITA:
+                String cartaIdentitaFormatted = Formatter.onlyNumbersAndLetters(number);
+                if (!Validator.isValidCartaIdentita(cartaIdentitaFormatted)) {
+                    throw new ServiceValidationException(Arrays.asList("Invalid Carta di Identità"));
+                }
+                return cartaIdentitaFormatted;
+    
+            default:
+                throw new ServiceValidationException(Arrays.asList("Invalid document type"));
+        }
+    }
+    
+    private void checkCustomerDocuments(Map<Integer, String> documentsFormatted) throws ServiceValidationException {
 
         List<DocumentCustomer> customerDocuments = documentCustomerPort.findByNumbers(new ArrayList<>(documentsFormatted.values()));
 
-        // Aqui se a lista volta preenchida, quer dizer que já existia um documento cadastrado no banco. Mas não seria interessante passarmos para o cliente qual documento da lista que ele passou já está cadastrado no banco?
         if(!customerDocuments.isEmpty()) {
-            throw new ServiceValidationException(Arrays.asList("Document already registrated"));
-        }
 
-        Person personCustomer = personPort.save(Person.builder()
-                            .firstName(request.getPersonCustomer().getFirstName())
-                            .lastName(request.getPersonCustomer().getLastName())
-                            .gender(request.getPersonCustomer().getGender())
-                        .build());
+            List<String> existedDocuments = new ArrayList<>();
+
+            for(DocumentCustomer document : customerDocuments) {
+                existedDocuments.add("Document " + document.getNumber() + " already registrated");
+            }
+
+            throw new ServiceValidationException(existedDocuments);
+        }
+    }
+
+    @Transactional
+    private ImmutablePair<Integer, String> createPersistence(CreateCustomerRequest request, 
+            String phoneNumber, Map<Integer, String> documentsFormatted) {
+
+        Person personCustomer = savePerson(request.getPersonCustomer());
                     
-        Integer personFatherId = null;
-        Integer personMotherId = null;
-                        
-        if(Objects.nonNull(request.getAffiliationFather())) {
-            Person personFather = personPort.save(Person.builder()
-                            .firstName(request.getAffiliationFather().getFirstName())
-                            .lastName(request.getAffiliationFather().getLastName())
-                            .gender(request.getAffiliationFather().getGender())
-                            .build());
-            
-            personFatherId = personFather.getId();
-        }
-        
-        if(Objects.nonNull(request.getAffiliationMother())) {
-            Person personMother = personPort.save(Person.builder()
-                            .firstName(request.getAffiliationMother().getFirstName())
-                            .lastName(request.getAffiliationMother().getLastName())
-                            .gender(request.getAffiliationMother().getGender())
-                            .build());
+        Integer personFatherId = savePerson(request.getAffiliationFather()).getId();
 
-            personMotherId = personMother.getId();
-        }
+        Integer personMotherId = savePerson(request.getAffiliationMother()).getId();
 
         Customer customer = customerPort.save(Customer.builder()
                             .idPerson(personCustomer.getId())
@@ -189,35 +190,57 @@ public class CustomerService implements CustomerUC {
                             .maritalStatus(request.getMaritalStatus())
                             .nationality(request.getNationality())
                             .profession(request.getProfession())
-                            .build());
+                        .build());
+
+        saveDocuments(documentsFormatted, customer.getId());
+
+        saveAddress(request.getCustomerAddress(), customer.getId());
+
+        return ImmutablePair.of(customer.getId(), customer.getUuid());
+    }
+
+    private Person savePerson(com.britaly.customer.adapter.in.api.request.Person person) {
+        
+        if(Objects.nonNull(person)) {
+            return personPort.save(Person.builder()
+                            .firstName(person.getFirstName())
+                            .lastName(person.getLastName())
+                            .gender(person.getGender())
+                        .build());
+        }
+
+        return Person.builder().build();
+    }
+
+    private void saveDocuments(Map<Integer, String> documentsFormatted, Integer customerId) {
 
         List<DocumentCustomer> documentList = new ArrayList<>();
         
         for (Map.Entry<Integer, String> document : documentsFormatted.entrySet()) {
             documentList.add(DocumentCustomer.builder()
-                .idCustomer(customer.getId())
+                .idCustomer(customerId)
                 .idDocument(document.getKey())
                 .number(document.getValue())
-                .build());
+            .build());
         }
 
         documentCustomerPort.saveAll(documentList);
-
-        Address address = addressPort.save(Address.builder()
-                    .addressName(request.getCustomerAddress().getAddressDescription())
-                    .number(request.getCustomerAddress().getNumber())
-                    .complement(request.getCustomerAddress().getComplement())
-                    .city(request.getCustomerAddress().getCity())
-                    .state(request.getCustomerAddress().getState())
-                    .idCountry(request.getCustomerAddress().getIdCountry())
-                    .build());
-
-        addressCustomerPort.save(AddressCustomer.builder()
-                    .idCustomer(customer.getId())
-                    .idAddress(address.getId())
-                    .build());
-
-        return ImmutablePair.of(customer.getId(), customer.getUuid());
     }
 
+    private void saveAddress(com.britaly.customer.adapter.in.api.request.Address request, Integer customerId) {
+
+        Address address = addressPort.save(Address.builder()
+                    .addressName(request.getAddressDescription())
+                    .number(request.getNumber())
+                    .complement(request.getComplement())
+                    .city(request.getCity())
+                    .state(request.getState())
+                    .idCountry(request.getIdCountry())
+                .build());
+
+        addressCustomerPort.save(AddressCustomer.builder()
+                    .idCustomer(customerId)
+                    .idAddress(address.getId())
+                .build());
+    }
 }
