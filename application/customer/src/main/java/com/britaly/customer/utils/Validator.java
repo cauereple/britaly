@@ -21,7 +21,7 @@ public class Validator {
     public static boolean isValidEmail(String email) {
 
         if(StringUtils.isBlank(email)) {
-            return true;
+            return false;
         }
 
         return Pattern.compile(REGEX_EMAIL)
@@ -30,7 +30,7 @@ public class Validator {
     }
 
     public static boolean isValidPhone(String phone) {
-        return phone.length() > 10 || phone.length() < 14;
+        return phone.length() > 10 && phone.length() < 14;
     }
 
     public static boolean isCPFValid(String number) {
